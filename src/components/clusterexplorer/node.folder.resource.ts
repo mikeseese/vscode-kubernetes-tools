@@ -30,6 +30,9 @@ export class ResourceFolderNode extends FolderNode implements ClusterExplorerRes
             host.showErrorMessage(childrenLines.error[0]);
             return [new MessageNode("Error")];
         }
+        if (this.kind.abbreviation === "node") {
+            childrenLines.result.push("Nodeless <none>");
+        }
         return childrenLines.result.map((line) => {
             const bits = line.split(' ');
             const metadata = {
