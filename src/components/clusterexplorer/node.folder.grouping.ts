@@ -38,6 +38,20 @@ class ResourceKindsGroupingFolder extends GroupingFolderNode {
     }
 }
 
+export class SimpleGroupingFolder extends GroupingFolderNode {
+    constructor(id: string, displayName: string, private readonly items: any[]) {
+        super(id, displayName);
+    }
+    getChildren(_kubectl: Kubectl, _host: Host): vscode.ProviderResult<ClusterExplorerNode[]> {
+        return this.items;
+    }
+    getTreeItem(): vscode.TreeItem | Thenable<vscode.TreeItem> {
+        const treeItem = new vscode.TreeItem(this.displayName, vscode.TreeItemCollapsibleState.Expanded);
+        treeItem.contextValue = this.contextValue || `vsKubernetes.${this.id}`;
+        return treeItem;
+    }
+}
+
 export const configurationGroupingFolder = () =>
     GroupingFolderNode.of("config", "Configuration",
         kuberesources.allKinds.configMap,

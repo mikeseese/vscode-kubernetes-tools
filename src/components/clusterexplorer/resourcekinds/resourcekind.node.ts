@@ -3,6 +3,7 @@ import * as kubectlUtils from '../../../kubectlUtils';
 import * as kuberesources from '../../../kuberesources';
 import { ResourceNode } from "../node.resource";
 import { ClusterExplorerNode } from "../node";
+import { SimpleGroupingFolder } from "../node.folder.grouping";
 
 export const nodePodsChildSource = {
     async children(kubectl: Kubectl, parent: ResourceNode): Promise<ClusterExplorerNode[]> {
@@ -15,6 +16,16 @@ export const nodePodsChildSource = {
             return `node/${p.nodeName}` === parent.kindName;
         });
 
-        return filteredPods.map((p) => ResourceNode.create(kuberesources.allKinds.pod, p.name, p.metadata, { podInfo: p }));
+        const namespaces = new Set(filteredPods.map((p) => p.namespace));
+
+        return Array.from(namespaces).map((ns) => {
+            return new SimpleGroupingFolder(
+                ns,
+                ns,
+                filteredPods.filter((p) => p.namespace === ns).map(
+                    (p) => ResourceNode.create(kuberesources.allKinds.pod, p.name, p.metadata, { podInfo: p })
+                )
+            );
+        });
     }
 };
