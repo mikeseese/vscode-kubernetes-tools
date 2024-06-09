@@ -1,6 +1,10 @@
 import {  exec } from 'child_process';
 
-export function killProcessTree(pid: number, signal: string = "SIGKILL", callback: (error: Error | null) => void = () => {}) {
+export function killProcessTree(pid: number | undefined, signal: string = "SIGKILL", callback: (error: Error | null) => void = () => {}) {
+    if (pid === undefined) {
+        return;
+    }
+
     if (Number.isNaN(pid)) {
         // if (callback) {
         //     return callback(new Error("pid must be a number"));
