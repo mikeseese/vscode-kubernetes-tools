@@ -106,7 +106,7 @@ export class KubernetesResourceVirtualFileSystemProvider implements FileSystemPr
             case HELM_RESOURCE_AUTHORITY:
                 const scopearg = ((await helmSyntaxVersion()) === HelmSyntaxVersion.V2) ? '' : 'all';
                 const revarg = revision ? ` --revision=${revision}` : '';
-                const her = await helmInvokeCommandWithFeedback(`get ${scopearg} ${value}${revarg}`, `Loading ${value}...`);
+                const her = await helmInvokeCommandWithFeedback(`get ${nsarg} ${scopearg} ${value}${revarg}`, `Loading ${value}...`);
                 return { succeeded: true, result: her };
             case KUBECTL_DESCRIBE_AUTHORITY:
                 const describe = await this.kubectl.invokeCommandWithFeedback(`describe ${value} ${nsarg}`, `Loading ${value}...`);

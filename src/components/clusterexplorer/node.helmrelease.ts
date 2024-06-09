@@ -14,7 +14,7 @@ import { MessageNode } from './node.message';
 import { assetUri } from '../../assets';
 
 export class HelmHistoryNode extends ClusterExplorerNodeImpl implements ClusterExplorerHelmHistoryNode {
-    constructor(readonly releaseName: string, readonly release: helmexec.HelmRelease) {
+    constructor(readonly releaseName: string, readonly release: helmexec.HelmRelease, readonly namespace: string) {
         super(NODE_TYPES.helm.history);
     }
     readonly nodeType = NODE_TYPES.helm.history;
@@ -40,7 +40,7 @@ export class HelmHistoryNode extends ClusterExplorerNodeImpl implements ClusterE
 }
 
 export class HelmReleaseNode extends ClusterExplorerNodeImpl implements ClusterExplorerHelmReleaseNode {
-    constructor(readonly releaseName: string, readonly status: string) {
+    constructor(readonly releaseName: string, readonly status: string, readonly namespace: string) {
         super(NODE_TYPES.helm.release);
     }
     readonly nodeType = NODE_TYPES.helm.release;
@@ -48,11 +48,11 @@ export class HelmReleaseNode extends ClusterExplorerNodeImpl implements ClusterE
         if (!helmexec.ensureHelm(helmexec.EnsureMode.Silent)) {
             return [new MessageNode("Helm client is not installed")];
         }
-        const history = await helmexec.helmGetHistory(this.releaseName);
+        const history = await helmexec.helmGetHistory(this.releaseName, this.namespace);
         if (failed(history)) {
             return [new MessageNode("Helm history list error", history.error[0])];
         }
-        return history.result.map((r) => new HelmHistoryNode(this.releaseName, r));
+        return history.result.map((r) => new HelmHistoryNode(this.releaseName, r, this.namespace));
     }
     getTreeItem(): vscode.TreeItem | Thenable<vscode.TreeItem> {
         const treeItem = new vscode.TreeItem(this.releaseName, vscode.TreeItemCollapsibleState.Collapsed);
