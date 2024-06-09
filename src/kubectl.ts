@@ -495,10 +495,10 @@ async function asJson<T>(context: Context, command: string): Promise<Errorable<T
     return { succeeded: false, error: [ shellResult.stderr ] };
 }
 
-function killProcessCallback(): (process: ChildProcess) => void {
-    return (process: ChildProcess) => {
-        if (!process.killed) {
-            killProcessTree(process.pid);
+function killProcessCallback(): (p: ChildProcess) => void {
+    return (proc: ChildProcess) => {
+        if (!proc.killed) {
+            killProcessTree(proc.pid);
         }
     };
 }
