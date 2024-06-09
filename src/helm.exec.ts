@@ -338,8 +338,9 @@ export function helmGet(resourceNode?: ClusterExplorerNode) {
         return;
     }
     const releaseName = resourceNode.releaseName;
+    const releaseNamespace = resourceNode.namespace;
     const revisionNumber = (resourceNode.nodeType === NODE_TYPES.helm.history ? resourceNode.release.revision : undefined);
-    const uri = helmfsUri(releaseName, revisionNumber);
+    const uri = helmfsUri(releaseName, revisionNumber, releaseNamespace);
     vscode.workspace.openTextDocument(uri).then((doc) => {
         if (doc) {
             vscode.window.showTextDocument(doc);
@@ -375,11 +376,12 @@ export function helmUninstall(resourceNode?: ClusterExplorerNode) {
     });
 }
 
-export async function helmGetHistory(release: string): Promise<Errorable<HelmRelease[]>> {
+export async function helmGetHistory(release: string, namespace?: string): Promise<Errorable<HelmRelease[]>> {
     if (!ensureHelm(EnsureMode.Alert)) {
         return { succeeded: false, error: [ "Helm client is not installed" ] };
     }
-    const sr = await helmExecAsync(`history ${release} --output json`);
+    const nsArg = namespace ? `--namespace ${namespace}` : '';
+    const sr = await helmExecAsync(`history ${release} --output json ${nsArg}`);
     if (!sr || sr.code !== 0) {
         const message = `Helm fetch history failed: ${sr ? sr.stderr : "Unable to run Helm"}`;
         await vscode.window.showErrorMessage(message);
@@ -419,13 +421,14 @@ export async function helmRollback(resourceNode?: HelmHistoryNode) {
     });
 }
 
-export function helmfsUri(releaseName: string, revision: number | undefined): vscode.Uri {
+export function helmfsUri(releaseName: string, revision: number | undefined, namespace: string | undefined): vscode.Uri {
     const revisionSuffix = revision ? `-${revision}` : '';
     const revisionQuery = revision ? `&revision=${revision}` : '';
 
     const docname = `helmrelease-${releaseName}${revisionSuffix}.txt`;
     const nonce = new Date().getTime();
-    const uri = `${K8S_RESOURCE_SCHEME}://${HELM_RESOURCE_AUTHORITY}/${docname}?value=${releaseName}${revisionQuery}&_=${nonce}`;
+    const nsquery = namespace ? `&ns=${namespace}` : "";
+    const uri = `${K8S_RESOURCE_SCHEME}://${HELM_RESOURCE_AUTHORITY}/${docname}?value=${releaseName}${revisionQuery}&_=${nonce}${nsquery}`;
     return vscode.Uri.parse(uri);
 }
 
@@ -825,7 +828,9 @@ export async function helmListAll(namespace?: string): Promise<Errorable<{ [key:
     let offset: string | null = null;
 
     do {
-        const nsarg = namespace ? `--namespace ${namespace}` : "";
+        const nsarg = namespace
+            ? (namespace === "all" ? "--all-namespaces" : `--namespace ${namespace}`)
+            : "";
         const offsetarg: string = offset ? `--offset ${offset}` : "";
         const sr = await helmExecAsync(`list --max 0 ${nsarg} ${offsetarg}`);
 
@@ -853,7 +858,7 @@ export async function helmListAll(namespace?: string): Promise<Errorable<{ [key:
     return { succeeded: true, result: releases };
 }
 
-export function ensureHelm(mode: EnsureMode) { 
+export function ensureHelm(mode: EnsureMode) {
     const configuredBin: string | undefined = getToolPath(host, sh, 'helm');
     if (configuredBin) {
         if (fs.existsSync(configuredBin)) {
