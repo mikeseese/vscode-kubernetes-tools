@@ -37,10 +37,17 @@ window.addEventListener('message', (event) => {
 
             const select = createElement('vscode-single-select');
             select.setAttribute('id', 'containers-select');
+            const preferredNames = ["game-server"];
+            const hasPreferredName = containers.some((container) => preferredNames.includes(container.name));
+            let hasSelected = false;
             // eslint-disable-next-line @typescript-eslint/prefer-for-of
             for (let i = 0; i < containers.length; i += 1) {
                 const option = createElement('vscode-option', containers[i].name,
                     (containers[i].initContainer ? containers[i].name + ' (init)' : containers[i].name));
+                if (hasPreferredName && !hasSelected && preferredNames.includes(containers[i].name)) {
+                    hasSelected = true;
+                    option.setAttribute('selected', '');
+                }
                 select.appendChild(option);
             }
             containersPanel.appendChild(select);
