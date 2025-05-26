@@ -7,6 +7,7 @@
     "engines": {
         "vscode": "^1.99.1"
     },
+    "packageManager": "yarn@1.22.22",
     "license": "Apache-2.0",
     "categories": [
         "Snippets",
@@ -1270,6 +1271,7 @@
         "compare-versions": "^6.1.1",
         "docker-file-parser": "^1.0.7",
         "dockerfile-parse": "^0.2.0",
+        "dompurify": "^3.2.4",
         "fuzzysearch": "^1.0.3",
         "js-yaml": "^4.1.0",
         "lodash": "^4.17.21",
@@ -1289,9 +1291,9 @@
         "unzipper": "^0.10.14",
         "vscode-extension-telemetry": "^0.4.5",
         "vscode-uri": "^3.1.0",
+        "ws": "^8.18.2",
         "yaml-ast-parser": "^0.0.43",
-        "yamljs": "^0.3.0",
-        "dompurify": "^3.2.4"
+        "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "@bendera/vscode-webview-elements": "^0.17.2",
