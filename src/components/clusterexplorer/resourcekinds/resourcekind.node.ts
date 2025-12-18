@@ -12,6 +12,9 @@ export const nodePodsChildSource = {
             if (p.nodeName === "<none>" && parent.kindName === "node/Nodeless") {
                 return true;
             }
+            if (parent.kindName === "node/All") {
+                return true;
+            }
 
             return `node/${p.nodeName}` === parent.kindName;
         });
