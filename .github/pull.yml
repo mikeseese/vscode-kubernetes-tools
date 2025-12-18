@@ -1,5 +1,0 @@
-version: "1"
-rules:
-  - base: master
-    upstream: vscode-kubernetes-tools:master
-    mergeMethod: merge
